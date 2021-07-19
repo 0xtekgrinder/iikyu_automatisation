@@ -44,8 +44,8 @@ class mainClass:
         data = r.json()
         self.lastRedemption = data['docs'][0]
 
-    def sendPoints(self, user, amount):
-        r = requests.get(url=URL + "/store/{}/redemptions/?{}".format(self.GUID, urlencode({'pending':'true'})),
+    def sendPoints(self, username, amount):
+        r = requests.put(url=URL + "/points/{}/{}/{}".format(self.GUID, username, amount),
                         headers={'Accept':'application/json', 'Authorization': 'Bearer {}'.format(JwtToken)})
 
 
