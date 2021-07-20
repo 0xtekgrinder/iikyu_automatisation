@@ -11,7 +11,7 @@ JwtToken = os.environ.get("JWTTOKEN")
 nbItems = 4
 URL = "https://api.streamelements.com/kappa/v2"
 
-class mainClass:
+class seClass:
 
     def __init__(self):
         r = requests.get(url=URL + "/channels/me",
@@ -50,7 +50,7 @@ class mainClass:
 
 
 def main():
-    amazing = mainClass()
+    amazing = seClass()
     amazing.getIdItems()
     amazing.activateOrDisableItems(True)
     string = ""
@@ -59,12 +59,21 @@ def main():
         print(amazing.lastRedemption['redeemer']['username'] + " reedemed " + amazing.lastRedemption['item']['name'] + " with card value of: " + amazing.lastRedemption['input'][0])
         print("What is the win value ?")
         value = float(input())
-        if (value >= int(amazing.lastRedemption['item']['name'][14]) * 10 and value < int(amazing.lastRedemption['item']['name'][14]) * 10 + 10):
+        if (value >= int(amazing.lastRedemption['item']['name'][14]) * 10 - 1 and value <= int(amazing.lastRedemption['item']['name'][14]) * 10):
             print("Refund")
+            amazing.sendPoints(amazing.lastRedemption['redeemer']['username'], int(500 * int(amazing.lastRedemption['item']['name'][14])))
+        if (value > int(amazing.lastRedemption['item']['name'][14]) * 10 and value < int(amazing.lastRedemption['item']['name'][14]) * 10 + 10):
+            print("Refund + Profit")
+            amazing.sendPoints(amazing.lastRedemption['redeemer']['username'], int(500 * int(amazing.lastRedemption['item']['name'][14]) + (value - int(amazing.lastRedemption['item']['name'][14]) * 10) * 10))
         if (value < int(amazing.lastRedemption['item']['name'][14]) * 10):
             print("Lost")
         if (value >= int(amazing.lastRedemption['item']['name'][14]) * 10 + 10):
-            print("Win")
+            print("Win,", int(500 * int(amazing.lastRedemption['item']['name'][14]) + (value - int(amazing.lastRedemption['item']['name'][14]) * 10) * 10), "points (P) or", (value - int(amazing.lastRedemption['item']['name'][14]) * 10) * 0.25, "euro (E)")
+            choice = input()
+            if (choice == "P"):
+                amazing.sendPoints(amazing.lastRedemption['redeemer']['username'], int(500 * int(amazing.lastRedemption['item']['name'][14]) + (value - int(amazing.lastRedemption['item']['name'][14]) * 10) * 10))
+            if (choice == 'E'):
+                print("send ", value - int(amazing.lastRedemption['item']['name'][14]) * 10 * 0.25, "euro to " + amazing.lastRedemption['redeemer']['username'])
         print("Continue ? (Y/N)")
         string = input()
     amazing.activateOrDisableItems(False)
