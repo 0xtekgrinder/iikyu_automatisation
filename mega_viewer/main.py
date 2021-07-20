@@ -42,7 +42,10 @@ class seClass:
         r = requests.get(url=URL + "/store/{}/redemptions/?{}".format(self.GUID, urlencode({'pending':'true'})),
                         headers={'Accept':'application/json', 'Authorization': 'Bearer {}'.format(JwtToken)})
         data = r.json()
-        self.lastRedemption = data['docs'][0]
+        if data['_total'] == 0:
+            self.getLastRedemption()
+        else:
+            self.lastRedemption = data['docs'][0]
 
     def sendPoints(self, username, amount):
         r = requests.put(url=URL + "/points/{}/{}/{}".format(self.GUID, username, amount),
