@@ -48,6 +48,12 @@ class seClass:
         r = requests.put(url=URL + "/points/{}/{}/{}".format(self.GUID, username, amount),
                         headers={'Accept':'application/json', 'Authorization': 'Bearer {}'.format(JwtToken)})
 
+    def updateRedemptionStatus(self, bool, guid):
+        r = requests.put(url=URL + "/store/{}/redemptions/{}".format(self.GUID, guid),
+                        data={'completed':bool},
+                        headers={'Accept':'application/json', 'Authorization': 'Bearer {}'.format(JwtToken)})
+
+
 
 def main():
     amazing = seClass()
@@ -74,6 +80,7 @@ def main():
                 amazing.sendPoints(amazing.lastRedemption['redeemer']['username'], int(500 * int(amazing.lastRedemption['item']['name'][14]) + (value - int(amazing.lastRedemption['item']['name'][14]) * 10) * 10))
             if (choice == 'E'):
                 print("send ", value - int(amazing.lastRedemption['item']['name'][14]) * 10 * 0.25, "euro to " + amazing.lastRedemption['redeemer']['username'])
+        amazing.updateRedemptionStatus(True, amazing.lastRedemption['_id'])
         print("Continue ? (Y/N)")
         string = input()
     amazing.activateOrDisableItems(False)
