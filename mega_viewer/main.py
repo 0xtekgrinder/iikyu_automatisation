@@ -57,35 +57,61 @@ class seClass:
                         headers={'Accept':'application/json', 'Authorization': 'Bearer {}'.format(JwtToken)})
 
 
+def payoutHandle(value, buyAmountMoney, buyAmountPoints, username, amazing):
+
+    if (value >= buyAmountMoney - 1 and value <= buyAmountMoney):
+        print("Refund")
+        amazing.sendPoints(username, buyAmountPoints)
+
+    if (value > buyAmountMoney and value < buyAmountMoney + 10):
+        print("Refund + Profit")
+        amazing.sendPoints(username, int(buyAmountPoints + (value - buyAmountMoney) * 10))
+
+    if (value < buyAmountMoney):
+        print("Lost")
+
+    if (value >= buyAmountMoney + 10):
+        print("Win,", int(buyAmountPoints + (value - buyAmountMoney) * 10), "points (P) or", (value - buyAmountMoney) * 0.25, "euro (E)")
+
+        choice = input()
+
+        if (choice == "P"):
+            amazing.sendPoints(username, int(buyAmountPoints + (value - buyAmountMoney) * 10))
+
+        if (choice == 'E'):
+            print("send ", value - buyAmountMoney * 0.25, "euro to " + username)
+
 
 def main():
+
     amazing = seClass()
+
     amazing.getIdItems()
     amazing.activateOrDisableItems(True)
+
     string = ""
+
     while string != "N":
+
         amazing.getLastRedemption()
-        print(amazing.lastRedemption['redeemer']['username'] + " reedemed " + amazing.lastRedemption['item']['name'] + " with card value of: " + amazing.lastRedemption['input'][0])
-        print("What is the win value ?")
+
+        username = amazing.lastRedemption['redeemer']['username']
+        itemName = amazing.lastRedemption['item']['name']
+        buyAmountPoints = 500 * int(itemName[14])
+        buyAmountMoney = 10 * int(itemName[14])
+
+        print(username + " reedemed " + itemName + " with card value of: " + amazing.lastRedemption['input'][0])
+
+        print("What is the payout value ?")
         value = float(input())
-        if (value >= int(amazing.lastRedemption['item']['name'][14]) * 10 - 1 and value <= int(amazing.lastRedemption['item']['name'][14]) * 10):
-            print("Refund")
-            amazing.sendPoints(amazing.lastRedemption['redeemer']['username'], int(500 * int(amazing.lastRedemption['item']['name'][14])))
-        if (value > int(amazing.lastRedemption['item']['name'][14]) * 10 and value < int(amazing.lastRedemption['item']['name'][14]) * 10 + 10):
-            print("Refund + Profit")
-            amazing.sendPoints(amazing.lastRedemption['redeemer']['username'], int(500 * int(amazing.lastRedemption['item']['name'][14]) + (value - int(amazing.lastRedemption['item']['name'][14]) * 10) * 10))
-        if (value < int(amazing.lastRedemption['item']['name'][14]) * 10):
-            print("Lost")
-        if (value >= int(amazing.lastRedemption['item']['name'][14]) * 10 + 10):
-            print("Win,", int(500 * int(amazing.lastRedemption['item']['name'][14]) + (value - int(amazing.lastRedemption['item']['name'][14]) * 10) * 10), "points (P) or", (value - int(amazing.lastRedemption['item']['name'][14]) * 10) * 0.25, "euro (E)")
-            choice = input()
-            if (choice == "P"):
-                amazing.sendPoints(amazing.lastRedemption['redeemer']['username'], int(500 * int(amazing.lastRedemption['item']['name'][14]) + (value - int(amazing.lastRedemption['item']['name'][14]) * 10) * 10))
-            if (choice == 'E'):
-                print("send ", value - int(amazing.lastRedemption['item']['name'][14]) * 10 * 0.25, "euro to " + amazing.lastRedemption['redeemer']['username'])
+
+        payoutHandle(value, buyAmountMoney, buyAmountPoints, username, amazing)
+
         amazing.updateRedemptionStatus(True, amazing.lastRedemption['_id'])
+
         print("Continue ? (Y/N)")
         string = input()
+
     amazing.activateOrDisableItems(False)
 
 if __name__ == "__main__":
